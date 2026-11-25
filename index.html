@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mes applis</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 0 auto;
+           padding: 2rem 1rem; background: #0f172a; color: #e2e8f0; }
+    h1 { text-align: center; }
+    ul { list-style: none; padding: 0; display: grid; gap: 1rem;
+         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    li a { display: block; padding: 1.5rem 1rem; border-radius: 12px; background: #1e293b;
+           color: inherit; text-decoration: none; text-align: center; font-weight: 600; }
+    li a:hover, li a:focus { background: #2563eb; }
+    #message { text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>🚀 Mes applis</h1>
+  <p id="message">Chargement…</p>
+  <ul id="liste"></ul>
+
+  <script>
+    // On demande à GitHub la liste des fichiers à la racine du dépôt
+    const API = "https://api.github.com/repos/clemcode69/mesapplis/contents/";
+    const message = document.getElementById("message");
+    const liste = document.getElementById("liste");
+
+    // "jeu-du-pendu.html" devient "Jeu du pendu"
+    function joliNom(fichier) {
+      const nom = fichier.replace(/\.html$/i, "").replace(/[-_]+/g, " ");
+      return nom.charAt(0).toUpperCase() + nom.slice(1);
+    }
+
+    async function afficherApplis() {
+      try {
+        const reponse = await fetch(API);
+        if (!reponse.ok) throw new Error("Erreur " + reponse.status);
+        const fichiers = await reponse.json();
+
+        // On garde les pages HTML, sauf la page d'accueil
+        const applis = fichiers.filter(f =>
+          f.type === "file" && /\.html$/i.test(f.name) && f.name !== "index.html");
+
+        for (const appli of applis) {
+          const lien = document.createElement("a");
+          lien.href = encodeURIComponent(appli.name);
+          lien.textContent = joliNom(appli.name);
+          const element = document.createElement("li");
+          element.appendChild(lien);
+          liste.appendChild(element);
+        }
+        message.textContent = applis.length ? "" : "Pas encore d'appli. La première arrive bientôt !";
+      } catch (erreur) {
+        message.textContent = "Impossible de charger la liste. Réessaie un peu plus tard.";
+        console.error(erreur);
+      }
+    }
+
+    afficherApplis();
+  </script>
+</body>
+</html>
