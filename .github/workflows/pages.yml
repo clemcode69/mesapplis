@@ -30,7 +30,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: public   # dossier contenant index.html
-
+          path: .
+  
       - uses: actions/deploy-pages@v5
         id: deployment
